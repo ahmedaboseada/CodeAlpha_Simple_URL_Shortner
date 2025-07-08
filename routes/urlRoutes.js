@@ -12,18 +12,29 @@ urlRouter.post("/shorten", async (req, res) => {
             return res.status(400).json({error: "URL is required"});
         }
 
+        // Format original URL if necessary
+        let formattedUrl = originalUrl;
+        if (!formattedUrl.startsWith('http://') && !formattedUrl.startsWith('https://')) {
+            formattedUrl = 'http://' + formattedUrl;
+        }
+
         const shortUrl = nanoid(6);
         const existURL = await Url.findOne({shortUrl});
         if (existURL) {
             return res.status(400).json({error: "Short URL already exists"});
         }
 
-        const url = await Url.create({originalUrl, shortUrl});
+        const url = await Url.create({originalUrl: formattedUrl, shortUrl});
+
+        // Generate dynamic URL using request origin
+        const baseUrl = req.get('origin') || process.env.PUBLIC_URL || `http://${req.get('host')}`;
+        const shortUrlPath = `${baseUrl}/short/${shortUrl}`;
+
         res.status(201).json({
             message: "URL shortened successfully",
-            url: `${process.env.PUBLIC_URL}/short/${shortUrl}`, // Updated URL format
+            url: shortUrlPath,
             shortUrl,
-            originalUrl,
+            originalUrl: formattedUrl,
             clicks: url.clicks
         });
     } catch (error) {

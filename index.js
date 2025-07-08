@@ -7,6 +7,7 @@ const cors = require('cors');
 const helmet = require('helmet');
 const morgan = require('morgan');
 const path = require('path');
+const mongoose = require('mongoose');
 
 // Initialize environment variables - Load this first
 dotenv.config();
@@ -38,8 +39,18 @@ app.use(morgan('dev'));
 app.use(express.json());
 app.use(express.urlencoded({extended: true}));
 
+// Store the base URL for dynamic access
+app.use((req, res, next) => {
+    // Determine the base URL dynamically from the request
+    const protocol = req.headers['x-forwarded-proto'] || req.protocol;
+    const host = req.headers['x-forwarded-host'] || req.get('host');
+    req.baseUrl = `${protocol}://${host}`;
+    next();
+});
+
 // Set view engine
 app.set('view engine', 'ejs');
+app.set('views', path.join(__dirname, 'views'));
 
 // Static files
 app.use('/public', express.static(path.join(__dirname, 'public')));
@@ -54,7 +65,8 @@ app.get('/health', (req, res) => {
     res.json({
         status: 'healthy',
         timestamp: new Date().toISOString(),
-        mongodb: mongoose.connection.readyState === 1 ? 'connected' : 'disconnected'
+        mongodb: mongoose.connection.readyState === 1 ? 'connected' : 'disconnected',
+        baseUrl: req.baseUrl
     });
 });
 

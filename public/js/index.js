@@ -10,8 +10,14 @@ document.addEventListener('DOMContentLoaded', () => {
     form.addEventListener('submit', async event => {
         event.preventDefault();
 
+        // Validate input
+        if (!urlInput.value.trim()) {
+            alert('Please enter a URL');
+            return;
+        }
+
         try {
-            // The API endpoint remains the same
+            // Use relative path to ensure it works regardless of domain
             const response = await fetch('/short/shorten', {
                 method: 'POST',
                 headers: {
@@ -23,18 +29,18 @@ document.addEventListener('DOMContentLoaded', () => {
             const data = await response.json();
 
             if (response.ok) {
-                // URL will already be in the correct format from the server
+                // Display the short URL returned from the server
                 shortUrlElement.href = data.url;
                 shortUrlElement.textContent = data.url;
                 successMessage.textContent = data.message;
                 resultDiv.classList.remove('hidden');
                 resultDiv.style.display = 'block';
             } else {
-                alert(data.error);
+                alert(data.error || 'An error occurred');
             }
         } catch (error) {
             console.error(error);
-            alert('Something went wrong');
+            alert('Something went wrong. Please try again.');
         }
     });
 
