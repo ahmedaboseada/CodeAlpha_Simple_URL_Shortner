@@ -11,7 +11,7 @@ const mongoose = require('mongoose');
 
 // Initialize environment variables - Load this first
 dotenv.config();
-app.set('trust proxy', true);
+// app.set('trust proxy', true);
 
 // Import routes and DB connection
 const connectDB = require('./DB/DBConnection');
