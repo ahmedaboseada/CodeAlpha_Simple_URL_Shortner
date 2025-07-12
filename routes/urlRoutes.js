@@ -35,7 +35,8 @@ urlRouter.post("/shorten", async (req, res) => {
             url: shortUrlPath,
             shortUrl,
             originalUrl: formattedUrl,
-            clicks: url.clicks
+            clicks: url.clicks,
+            ipAddress: req.ip
         });
     } catch (error) {
         res.status(500).json({error: error.message});
