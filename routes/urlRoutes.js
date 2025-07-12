@@ -24,7 +24,7 @@ urlRouter.post("/shorten", async (req, res) => {
             return res.status(400).json({error: "Short URL already exists"});
         }
 
-        const url = await Url.create({originalUrl: formattedUrl, shortUrl});
+        const url = await Url.create({originalUrl: formattedUrl, shortUrl, ipAddress: req.ip});
 
         // Generate dynamic URL using request origin
         const baseUrl = req.get('origin') || process.env.PUBLIC_URL || `http://${req.get('host')}`;
